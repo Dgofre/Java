@@ -1,0 +1,190 @@
+openapi: 3.0.1
+info:
+  title: Test Task
+  description: API description in Markdown.
+  version: 1.0.0
+servers:
+  - url: 'https://api.example.com'
+paths:
+  /users:
+    get:
+      security:
+        - bearerAuth: []
+      summary: Returns a list of users.
+      tags:
+        - User management
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - username
+                    - _id
+                  properties:
+                    username:
+                      type: string
+                    _id:
+                      type: string
+        '401':
+          description: Unauthorized
+    put:
+      summary: Creates a new user
+      tags:
+        - User management
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: OK
+        '401':
+          description: Unauthorized
+  /users/{userId}:
+    patch:
+      summary: Overwrites user's data with supplied fields
+      tags:
+        - User management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+    delete:
+      summary: Deletes user
+      tags:
+        - User management
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+  /users/{userId}/avatar:
+    get:
+      summary: Retrieves user's avatar
+      tags:
+        - User management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+    patch:
+      summary: Uploads/overwrites user's avatar
+      tags:
+        - User management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+      requestBody:
+        content:
+          image/*:
+            schema:
+              required: true
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+  /login:
+    post:
+      summary: Creates a JWT token
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwt:
+                    type: string
+        '401':
+          description: Unauthorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
