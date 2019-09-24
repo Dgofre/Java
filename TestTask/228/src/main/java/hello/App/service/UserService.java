@@ -81,7 +81,7 @@ public class UserService {
                 obj.put("jwt", token);
                 return obj;
             } else {
-                throw new UsernameTakenException();
+                throw new UnauthorizedException();
             }
         }catch (UserNotFoundException e) {
             throw new UnauthorizedException();
