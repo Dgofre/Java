@@ -60,6 +60,10 @@ public class User {
         this.password = newPassword;
     }
 
+    public void setUsername(String newUsername){
+        this.password = newUsername;
+    }
+
 
     public User(String username, String password) {
         this.username = username;

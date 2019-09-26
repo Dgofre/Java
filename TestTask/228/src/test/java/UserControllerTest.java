@@ -33,7 +33,7 @@ public class UserControllerTest {
         assertThat(response.getStatusCode(), equalTo(HttpStatus.UNAUTHORIZED));
     }
 
-    @Test
+    /*@Test
     public void status_400_login() throws Exception {
         TestRestTemplate testRestTemplate = new TestRestTemplate();
 
@@ -44,7 +44,7 @@ public class UserControllerTest {
 
         ResponseEntity<JSONObject> response = testRestTemplate.postForEntity(url+"login", json, JSONObject.class, headers);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
-    }
+    }*/
 
 
 
