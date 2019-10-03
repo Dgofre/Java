@@ -1,5 +1,6 @@
 import hello.App.Application;
 import hello.App.domains.User;
+import hello.App.exaption.IncorrectDataException;
 import hello.App.exaption.UserNotFoundException;
 import hello.App.exaption.UsernameTakenException;
 import hello.App.repository.UserRepository;
@@ -13,7 +14,8 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 
 @SpringBootTest(classes = Application.class)
@@ -32,19 +34,19 @@ public class test {
 
     @BeforeEach
     void setMockOutput() {
-        when(userRepository.findbyId(testId)).thenReturn(user);
-        when(userRepository.findbyId(notFoundId)).thenThrow(new UserNotFoundException(notFoundId));
-        when(userRepository.findbyUsername(user.getUsername())).thenReturn(user);
-        when(userRepository.findbyUsername(notFoundName)).thenThrow(new UserNotFoundException(notFoundName));
+
+
     }
 
     @Test
     public void testFindById(){
-        assertEquals(user, userServise.findById(testId));
+        when(userRepository.findbyId(testId)).thenReturn(user);
+        assertEquals(user.getUsername(), userServise.findById(testId).getUsername());
     }
 
     @Test
     public void testExaptionFindById(){
+        when(userRepository.findbyId(anyString())).thenReturn(null);
         try {
             assertEquals(user, userServise.findById(notFoundId));
         }catch (UserNotFoundException e){ }
@@ -52,11 +54,13 @@ public class test {
 
     @Test
     public void testFindByName(){
-        assertEquals(user, userServise.findByName(user.getUsername()));
+        when(userRepository.findbyUsername(user.getUsername())).thenReturn(user);
+        assertEquals(user.getUsername(), userServise.findByName(user.getUsername()).getUsername());
     }
 
     @Test
     public void testExaptionFindByName(){
+        when(userRepository.findbyUsername(anyString())).thenReturn(null);
         try {
             assertEquals(user, userServise.findByName(notFoundName));
         }catch (UserNotFoundException e){ }
@@ -64,10 +68,62 @@ public class test {
 
     @Test
     public void testSave(){
-        JSONObject obj = new JSONObject();
-        obj.put("_id", testId);
-        obj.put("username", user.getUsername());
 
-        assertEquals(obj, userServise.save());
+        JSONObject inputObj = new JSONObject();
+        inputObj.put("password", user.getPassword());
+        inputObj.put("username", user.getUsername());
+
+        JSONObject outputObj = new JSONObject();
+        outputObj.put("_id", testId);
+        outputObj.put("username", user.getUsername());
+
+        when(userRepository.saveUser(user)).thenReturn(outputObj);
+        assertEquals(outputObj, userServise.save(inputObj));
     }
+
+    @Test
+    public void testSaveToUsernameTakenException(){
+
+        JSONObject inputObj = new JSONObject();
+        inputObj.put("password", user.getPassword());
+        inputObj.put("username", user.getUsername());
+
+        JSONObject outputObj = new JSONObject();
+        outputObj.put("_id", testId);
+        outputObj.put("username", user.getUsername());
+
+        when(userRepository.saveUser(user)).thenThrow(new UsernameTakenException());
+        try {
+            assertEquals(outputObj, userServise.save(inputObj));
+        }catch (UsernameTakenException e){}
+    }
+
+    @Test
+    public void testSaveToIncorrectDataException(){
+        //User user = new User("", "admin");
+
+        JSONObject inputObj = new JSONObject();
+        //inputObj.put("password", user.getPassword());
+        //inputObj.put("username", user.getUsername());
+
+        JSONObject outputObj = new JSONObject();
+        outputObj.put("_id", testId);
+        outputObj.put("username", user.getUsername());
+
+        //when(userRepository.validJSON(inputObj, false)).thenThrow(new IncorrectDataException());
+        //doThrow(new IncorrectDataException()).when( );
+
+        try {
+            assertEquals(outputObj, userServise.save(inputObj));
+        }catch (IncorrectDataException e) {}
+    }
+
+    /*@Test
+    public void TestPatchUser(){
+
+
+        try {
+            userServise.patchUser();
+        }catch (IncorrectDataException e) {}
+    }*/
 }
